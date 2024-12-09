@@ -76,6 +76,15 @@ int* createQueue(Matrix* arr) {
     return queue;
 }
 
+int checkForColoring(Matrix* arr) {
+    for (int i = 0; i < arr->nodes; i++) {
+        if (arr->states[i] == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 Matrix* matrix(char* path) {
     Matrix* arr = (Matrix*) malloc(sizeof(Matrix));
     if (!arr) {
@@ -152,6 +161,21 @@ void printMatrix(Matrix* arr) {
         printf("\n");
     }
     printf("\n");
+}
+
+int findChromaticNum(Matrix* arr) {
+    int *hash = (int *)calloc(arr->nodes + 1, sizeof(int));
+    int unique_count = 0;
+
+    for (int i = 0; i < arr->nodes; i++) {
+        if (hash[arr->states[i]] == 0) {
+            unique_count++;
+            hash[arr->states[i]] = 1;
+        }
+    }
+
+    free(hash);
+    return unique_count;
 }
 
 int* readRow(Matrix* arr, int row) {

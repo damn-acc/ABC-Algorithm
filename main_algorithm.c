@@ -3,9 +3,10 @@
 #include "struct_matrix.c"
 #include "struct_hive.c"
 
-#define PATH "matrix2.bin"
+#define PATH "matrix1.bin"
 #define SCOUTS 2
-#define FORAGERS 6
+#define FORAGERS 28
+#define ITERATIONS 1000
 
 void abcAlgorithm(Hive* hive);
 void collectNectar(Hive* hive, int inner_node, int foragers);
@@ -13,10 +14,11 @@ int availableColor(Hive* hive, int curr_node);
 
 int main() {
     Matrix* arr = matrix(PATH);
-    printMatrix(arr);
-    printDegree(arr);
-    printQueue(arr);
-    printStates(arr);
+    // printf("Nodes: %d\n", arr->nodes);
+    // printMatrix(arr);
+    // printDegree(arr);
+    // printQueue(arr);
+    // printStates(arr);
 
     Hive* hive = beeHive(SCOUTS, FORAGERS);
     hive->arr = arr;
@@ -36,16 +38,45 @@ void abcAlgorithm(Hive* hive) {
     int all_foragers;
     int foragers_per_node = (int)hive->foragers / hive->scouts;
     int queue_index = 0;
-    int isColored = 0;
     int iterations = 0;
+    int isColored = 0;
+    
+    int chromatic;
+    int* best_states = (int*) calloc(sizeof(int), n);
+    int best_chromatic = 99999;
 
-    while (queue_index < n) {
+    while (iterations < ITERATIONS) {
         iterations++;
-        printf("Iteration: %d\n", iterations);
+
+        if (!isColored && checkForColoring(hive->arr)) {
+                isColored = 1;
+                printf("Matrix Colored!\n");
+        }
+           
+        chromatic = findChromaticNum(hive->arr);   
+
+        if (isColored) {
+            if (chromatic <= best_chromatic) {
+                best_chromatic = chromatic;
+                for (int i = 0; i < n; i++) {
+                    best_states[i] = hive->arr->states[i];
+                }
+            } else {
+                for (int i = 0; i < n; i++) {
+                    hive->arr->states[i] = best_states[i];
+                    chromatic = best_chromatic;
+                }
+            }
+        }
+
+        if (iterations % 10 == 0 ) {
+            printf("Iteration: %d   ", iterations);
+            printf("Chromatic number: %d\n", chromatic); 
+        }
 
         for (int i = 0; i < hive->scouts; i++) {
             if (queue_index < n) {
-                printf("    Curr Main Node: %d\n", hive->arr->queue[queue_index]);
+                // printf("    Curr Main Node: %d\n", hive->arr->queue[queue_index]);
                 all_foragers = hive->foragers;
                 if (all_foragers >= foragers_per_node) {
                     collectNectar(hive, hive->arr->queue[queue_index],  foragers_per_node);
@@ -55,9 +86,14 @@ void abcAlgorithm(Hive* hive) {
                     all_foragers -= all_foragers;
                 }
                 queue_index++;
+                if (queue_index >= n) {
+                    queue_index = 0;
+                }
             }
         }
     }
+
+    free(best_states);
 }
 
 void collectNectar(Hive* hive, int inner_node, int foragers) {
@@ -93,12 +129,12 @@ int availableColor(Hive* hive, int curr_node) {
         exit(1);
     }
 
-    printf("    Color for %d\n    ", curr_node);
+    // printf("    Color for %d\n    ", curr_node);
     int index = 0;
     for (int i = 0; i < n; i++) {
         if (temp[i] == 1) {
             neighbours_colors[index] = hive->arr->states[i];
-            printf("%d,", neighbours_colors[index]);
+            // printf("%d,", neighbours_colors[index]);
             index++;
         }
     }
@@ -111,12 +147,12 @@ int availableColor(Hive* hive, int curr_node) {
         }
     }
 
-    printf("   New color: %d\n", color);
+    // printf("   New color: %d\n", color);
 
     free(temp);
     free(neighbours_colors);
 
-    printf("\n");
+    // printf("\n");
     return color;
 }
 

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <time.h>
 
-#define NODES_NUM 10
-#define FILE_PATH "matrix2.bin"
+#define NODES_NUM 200
+#define FILE_PATH "matrix1.bin"
 
 int** generateAdjacencyMatrix(int nodes_num);
 void printAdjacencyMatrix(int** adj_matrix, int nodes_num);
@@ -29,7 +29,7 @@ int** generateAdjacencyMatrix(int nodes_num) {
     int curr_power;
     int chance;
     for (int i = 0; i < nodes_num; i++) {
-        power = rand() % 20 + 1;
+        power = rand() % 30 + 1;
         curr_power = 0;
         for (int j = i + 1; j < nodes_num; j++) {
             chance = rand() % nodes_num + 1;
