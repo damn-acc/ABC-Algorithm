@@ -153,7 +153,31 @@ void printMatrix(Matrix* arr) {
     }
     printf("\n");
 }
-    
+
+int* readRow(Matrix* arr, int row) {
+    FILE* file = fopen(arr->path, "rb");
+    if (!file) {
+        printf("Failed to open file\n", arr->path);
+        exit(1);
+    }
+
+    fseek(file, row * arr->nodes * sizeof(int), SEEK_SET);
+
+    int* temp = (int*) malloc(sizeof(int) * arr->nodes);
+    if (!temp) {
+        printf("Memory allocation for temp failed\n");
+        exit(1);
+    }
+
+    if (fread(temp, sizeof(int), arr->nodes, file) != arr->nodes) {
+        printf("Failed to read data from arr\n");
+        exit(1);
+    }
+    fclose(file);
+
+    return temp;
+}
+
 void freeMatrix(Matrix* arr) {
     free(arr->states);
     free(arr->degree);
